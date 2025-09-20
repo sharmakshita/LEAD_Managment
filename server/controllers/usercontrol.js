@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import usermodel from '../modle/usermodule.js';
+import usermodle from '../modle/user.js';
 import transporter from '../configurations/nodemailer.js';
 //to register as new user
 export const register = async (req, res) => {
@@ -10,13 +10,13 @@ export const register = async (req, res) => {
     }
 
     try {
-        const existingUser = await usermodel.findOne({ Email });
+        const existingUser = await usermodle.findOne({ Email });
         if (existingUser) {
             return res.json({ success: false, message: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(Password, 10);
-        const newUser = new usermodel({ Name, Email, Password: hashedPassword });
+        const newUser = new usermodle({ Name, Email, Password: hashedPassword });
         await newUser.save();
 
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -69,7 +69,7 @@ export const login = async (req, res) => {
 
             return res.json({ success: true, message: "Admin login successful", role: 'admin' });
         }
-        const user = await usermodel.findOne({ Email });
+        const user = await usermodle.findOne({ Email });
         if (!user) {
             return res.json({ success: false, message: "User not found!" });
         }
